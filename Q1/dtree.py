@@ -41,11 +41,44 @@ for label in cont_attr:
     median = train_XY[label].median()
     train_XY[label] = train_XY[label].apply(lambda x: 0 if float(x) < median else 1)
 
+def GrowTree(dataset_set = pd.DataFrame([])): # it will take as argument the dataset
+    for nth_splits in range(len(list(dataset))):
+        n_row = len(dataset_set[nth_split].index)
+        equal_zeros = pd.Series(np.zeros((n_row)))
+        equal_ones = pd.Series(np.ones((n_row)))
+        if equal_zeros.equals(dataset_set[nth_splits]['Y']):
+            return Leaf(0)
+        if equal_ones.equals(dataset_set[nth_splits]['Y']):
+            return Leaf(1)
+        else:
+            attr = BestAttribute(dataset_set[nth_splits]) # if attr is boolean return attribute lable, else label as well as category of the attributes
+            n_multiway =0
+            for attr_val in [0,1]: # modify for multiway attribute later
+                split_row_indices = (dataset_set[nth_splits][attr] == attr_val).reshape(-1)
+                branched_data[n_multiway] = dataset_set[nth_splits].iloc[split_row_indices,:]
+                n_multiway += 1
+            GrowTree(branced_data)
 
+def BestAttribute(dataset = pd.DataFrame):
+
+if question_part == 'a':
+
+if question_part == 'b':
+
+if question_part == 'c':
+
+if question_part == 'd':
+    """
+    using sciki - learn library to grow a decision tree
+    """
+
+if question_part == 'e':
+
+if question_part == 'f':
 
 # root_node = Node(mat_labels_features)
 # root = Tree(root_node)
 
-print(root_node.entropy())
+# print(root_node.entropy())
 
 
