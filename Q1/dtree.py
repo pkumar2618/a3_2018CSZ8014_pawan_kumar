@@ -6,7 +6,12 @@ from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
 
 from node import Node
+from node import best_attribute
 from tree import Tree
+# from tree import grow_tree
+
+
+
 
 # print sys.argv[0] # prints python_script.py
 
@@ -17,7 +22,7 @@ from tree import Tree
 path_train = "../../../ass3_data/credit-cards.train.csv"
 path_test = "../../../ass3_data/credit-cards.test.csv"
 path_val = "../../../ass3_data/credit-cards.val.csv"
-question_part = 'f' # prints
+question_part = 'a' # prints
 
 
 # mat_labels_features = np.zeros((10,4))
@@ -33,8 +38,13 @@ for label in list(train_XY):
     attr_n += 1
 
 train_XY = train_XY.drop([0], axis =0)
+train_XY = train_XY.drop('X0', axis =1)
+
 test_XY = test_XY.drop([0], axis =0)
+test_XY = test_XY.drop('X0', axis =1)
+
 val_XY = val_XY.drop([0], axis =0)
+val_XY = val_XY.drop('X0', axis =1)
 
 
 
@@ -46,27 +56,13 @@ for label in cont_attr:
     test_XY[label] = test_XY[label].apply(lambda x: 0 if float(x) < median else 1)
     val_XY[label] = val_XY[label].apply(lambda x: 0 if float(x) < median else 1)
 
-def GrowTree(set_dataset = np.array([object])): # it will take as argument the dataset
-    for nth_splits in range(len(list(dataset))):
-        n_row = len(dataset_set[nth_split].index)
-        equal_zeros = pd.Series(np.zeros((n_row)))
-        equal_ones = pd.Series(np.ones((n_row)))
-        if equal_zeros.equals(dataset_set[nth_splits]['Y']):
-            return Leaf(0)
-        if equal_ones.equals(dataset_set[nth_splits]['Y']):
-            return Leaf(1)
-        else:
-            attr = BestAttribute(dataset_set[nth_splits]) # if attr is boolean return attribute lable, else label as well as category of the attributes
-            n_multiway =0
-            for attr_val in [0,1]: # modify for multiway attribute later
-                split_row_indices = (dataset_set[nth_splits][attr] == attr_val).reshape(-1)
-                branched_data[n_multiway] = dataset_set[nth_splits].iloc[split_row_indices,:]
-                n_multiway += 1
-            GrowTree(branced_data)
 
-def BestAttribute(dataset = pd.DataFrame):
 
 if question_part == 'a':
+    dt_fit = Tree()
+    n_features = len(list(train_XY))-1 # and Y removed.
+    # feature = best_attribute(dataset= pd.DataFrame(), max_features = n_features)
+    dt_fit.root = Node().grow_tree(train_XY)
 
 # if question_part == 'b':
 #
