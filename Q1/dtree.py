@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
 
 from node import Node
@@ -16,7 +17,7 @@ from tree import Tree
 path_train = "../../../ass3_data/credit-cards.train.csv"
 path_test = "../../../ass3_data/credit-cards.test.csv"
 path_val = "../../../ass3_data/credit-cards.val.csv"
-question_part = 'e' # prints
+question_part = 'f' # prints
 
 
 # mat_labels_features = np.zeros((10,4))
@@ -45,27 +46,28 @@ for label in cont_attr:
     test_XY[label] = test_XY[label].apply(lambda x: 0 if float(x) < median else 1)
     val_XY[label] = val_XY[label].apply(lambda x: 0 if float(x) < median else 1)
 
-# def GrowTree(dataset_set = pd.DataFrame([])): # it will take as argument the dataset
-#     for nth_splits in range(len(list(dataset))):
-#         n_row = len(dataset_set[nth_split].index)
-#         equal_zeros = pd.Series(np.zeros((n_row)))
-#         equal_ones = pd.Series(np.ones((n_row)))
-#         if equal_zeros.equals(dataset_set[nth_splits]['Y']):
-#             return Leaf(0)
-#         if equal_ones.equals(dataset_set[nth_splits]['Y']):
-#             return Leaf(1)
-#         else:
-#             attr = BestAttribute(dataset_set[nth_splits]) # if attr is boolean return attribute lable, else label as well as category of the attributes
-#             n_multiway =0
-#             for attr_val in [0,1]: # modify for multiway attribute later
-#                 split_row_indices = (dataset_set[nth_splits][attr] == attr_val).reshape(-1)
-#                 branched_data[n_multiway] = dataset_set[nth_splits].iloc[split_row_indices,:]
-#                 n_multiway += 1
-#             GrowTree(branced_data)
-#
-# def BestAttribute(dataset = pd.DataFrame):
+def GrowTree(set_dataset = np.array([object])): # it will take as argument the dataset
+    for nth_splits in range(len(list(dataset))):
+        n_row = len(dataset_set[nth_split].index)
+        equal_zeros = pd.Series(np.zeros((n_row)))
+        equal_ones = pd.Series(np.ones((n_row)))
+        if equal_zeros.equals(dataset_set[nth_splits]['Y']):
+            return Leaf(0)
+        if equal_ones.equals(dataset_set[nth_splits]['Y']):
+            return Leaf(1)
+        else:
+            attr = BestAttribute(dataset_set[nth_splits]) # if attr is boolean return attribute lable, else label as well as category of the attributes
+            n_multiway =0
+            for attr_val in [0,1]: # modify for multiway attribute later
+                split_row_indices = (dataset_set[nth_splits][attr] == attr_val).reshape(-1)
+                branched_data[n_multiway] = dataset_set[nth_splits].iloc[split_row_indices,:]
+                n_multiway += 1
+            GrowTree(branced_data)
 
-# if question_part == 'a':
+def BestAttribute(dataset = pd.DataFrame):
+
+if question_part == 'a':
+
 # if question_part == 'b':
 #
 # if question_part == 'c':
@@ -80,7 +82,6 @@ if question_part == 'd':
     test_Y = test_XY.loc[:,'Y'].to_numpy(copy=True)
     val_X = val_XY.loc[:,'X1':'X23'].to_numpy(copy=True)
     val_Y = val_XY.loc[:,'Y'].to_numpy(copy=True)
-
 
     acc_min_leaf =[]
     acc_min_split = []
@@ -169,7 +170,75 @@ if question_part == 'e':
     acc_test = accuracy_score(test_Y, test_Y_pred) * 100
     print("accuracy on train_set, validation_set and test_set are %f, %f, %f  respectively " % (acc_test, acc_val, acc_test) )
 
-# if question_part == 'f':
+if question_part == 'f':
+    """
+    prediction using Random Forest
+    """
+    train_X = pd.get_dummies(train_XY.loc[:, 'X1':'X23'])
+    train_Y = train_XY.loc[:, 'Y'].to_numpy(copy=True)
+    test_X = pd.get_dummies(test_XY.loc[:, 'X1':'X23'])
+    test_Y = test_XY.loc[:, 'Y'].to_numpy(copy=True)
+    val_X = pd.get_dummies(val_XY.loc[:, 'X1':'X23'])
+    val_Y = val_XY.loc[:, 'Y'].to_numpy(copy=True)
+    ## aligning dummies
+    train_X_onehot, test_X_onehot = train_X.align(test_X, join='left', fill_value=0, axis=1)
+    train_X_onehot, val_X_onehot = train_X.align(val_X, join='left', fill_value=0, axis=1)
+
+    train_X = train_X_onehot.to_numpy(copy=True)
+    test_X = test_X_onehot.to_numpy(copy=True)
+    val_X = val_X_onehot.to_numpy(copy=True)
+
+    acc_n_estimators = []
+    acc_max_features = []
+    acc_bootstrap10 = []
+    for n_tree in range(10, 100, 5):
+        clf_config = RandomForestClassifier(n_estimators=n_tree)
+        r_forest = clf_config.fit(train_X, train_Y)
+        val_Y_pred = r_forest.predict(val_X)
+
+        acc_n_estimators.append(accuracy_score(val_Y, val_Y_pred) * 100)
+        # print("accuracy on test data", acc )
+    attr_n = train_X.shape[1]
+    for n_attr in range(train_X.shape[1]):
+        clf_config = RandomForestClassifier(n_estimators = 10, max_features=n_attr+1)
+        r_forest = clf_config.fit(train_X, train_Y)
+        val_Y_pred = r_forest.predict(val_X)
+
+        acc_max_features.append(accuracy_score(val_Y, val_Y_pred) * 100)
+
+    for bootstrap_state in [True, False]:
+        clf_config = RandomForestClassifier(n_estimators=100, max_features=None, bootstrap = bootstrap_state)
+        r_forest = clf_config.fit(train_X, train_Y)
+        val_Y_pred = r_forest.predict(val_X)
+
+        acc_bootstrap10.append(accuracy_score(val_Y, val_Y_pred) * 100)
+
+    fig1 = plt.figure()
+    grid = plt.GridSpec(2, 2, wspace=0.4, hspace=0.3)
+    ax1 = fig1.add_subplot(grid[0, 0])
+    ax2 = fig1.add_subplot(grid[0, 1])
+    ax3 = fig1.add_subplot(grid[1, :])
+
+    line1 = ax1.plot(range(10, 100, 5), acc_n_estimators, label='n_estimators')
+    ax1.legend()
+    ax1.set_xlabel("number of trees in the forest")
+    ax1.set_ylabel("accuracy")
+    ax1.set_title("accuracy vs n_estimators for validation set")
+
+    line2 = ax2.plot(range(1, train_X.shape[1]+1), acc_max_features, label='max_features')
+    ax2.legend()
+    ax2.set_xlabel("max. number of features considered for split, while choosing the best attribute")
+    ax2.set_ylabel("accuracy")
+    ax2.set_title("accuracy vs max_features for validation set")
+
+    line3 = ax3.plot([1,0], acc_bootstrap10, label='1=bootstrapping, 0=no-bootstrapping')
+    ax3.legend()
+    ax3.set_xlabel("Bootstrapping state")
+    ax3.set_ylabel("accuracy")
+    ax3.set_title("accuracy vs bootstrapping state for validation set")
+
+    # plt.legend((line1, line2, line3), ('min_sample_leaf', 'min_sample_split', 'max_depth'))
+    plt.show()
 #
 # # root_node = Node(mat_labels_features)
 # # root = Tree(root_node)
