@@ -11,13 +11,14 @@ class Node:
     """
     node to contain attribute on which it splits the data
     """
-    def __init__(self, data, feature=None, branches = []):
+    def __init__(self, data, feature=None, branches = [], branch_value =[]):
         """
         :param feature: the attribute on which self is split 
         :param branches: the new branches that would shoot from self. 
         """
         self.feature = feature
         self.branches= branches
+        self.branch_value =branch_value
         self.data = data
 
     def grow_tree(self):  # =  pd.DataFrame()):
@@ -43,12 +44,22 @@ class Node:
                 attr = best_attribute(dataset)  # if attr is boolean return attribute label and [0,1],
                 # else label as well as category list ['a', 'b'] the attributes
                 self.feature = attr.name  # storing the best attribute found for this node
+                self.branch_value = attr[:]
+                new_nodes =[]
                 for attr_val in attr[:]:
                     split_row_indices = (dataset[attr.name] == attr_val)
                     temp_branched_data = dataset.loc[split_row_indices, :]
                     branched_data = temp_branched_data.drop([attr.name],axis=1)
-                    self.branches.append(Node(data = branched_data).grow_tree())
+                    new_nodes.append(Node(data =branched_data))
+                    #dfs like growing
+                    # new_node.grow_tree()
+                    # self.branch_value.append(attr_val)
+                    # self.branches.append(new_node)
                     # n_multiway += 1
+                self.branches = new_nodes
+                #bfs like growth
+                for i in range(len(attr)):
+                    self.branches[i].grow_tree()
 
 def entropy_Hy(data = pd.Series()):
     size = data.size

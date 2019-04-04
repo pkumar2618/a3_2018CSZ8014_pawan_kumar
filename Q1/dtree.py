@@ -39,6 +39,7 @@ for label in list(train_XY):
 
 train_XY = train_XY.drop([0], axis =0)
 train_XY = train_XY.drop('X0', axis =1)
+train_XY =train_XY.iloc[0:100,:]
 
 test_XY = test_XY.drop([0], axis =0)
 test_XY = test_XY.drop('X0', axis =1)
@@ -59,10 +60,12 @@ for label in cont_attr:
 
 
 if question_part == 'a':
-    dt_fit = Tree()
+    # dt_fit = Tree()
     n_features = len(list(train_XY))-1 # and Y removed.
     # feature = best_attribute(dataset= pd.DataFrame(), max_features = n_features)
-    dt_fit.root = Node(data=train_XY).grow_tree()
+    root_node = Node(data=train_XY)
+    root_node.grow_tree()
+    # learned_tree = dt_fit
     print("Tree complete")
 # if question_part == 'b':
 #
