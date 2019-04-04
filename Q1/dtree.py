@@ -62,8 +62,8 @@ if question_part == 'a':
     dt_fit = Tree()
     n_features = len(list(train_XY))-1 # and Y removed.
     # feature = best_attribute(dataset= pd.DataFrame(), max_features = n_features)
-    dt_fit.root = Node().grow_tree(train_XY)
-
+    dt_fit.root = Node(data=train_XY).grow_tree()
+    print("Tree complete")
 # if question_part == 'b':
 #
 # if question_part == 'c':

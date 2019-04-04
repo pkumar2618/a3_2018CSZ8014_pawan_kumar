@@ -11,35 +11,44 @@ class Node:
     """
     node to contain attribute on which it splits the data
     """
-    def __init__(self, feature=None, branches = []):
+    def __init__(self, data, feature=None, branches = []):
         """
         :param feature: the attribute on which self is split 
         :param branches: the new branches that would shoot from self. 
         """
         self.feature = feature
         self.branches= branches
+        self.data = data
 
-    def grow_tree(self, dataset):  # =  pd.DataFrame()):
+    def grow_tree(self):  # =  pd.DataFrame()):
         #  it will take as argument the dataset passed on the the new branch.
-        n_rows = len(dataset.index)
-        equal_zeros = pd.Series(np.zeros(n_rows))
-        equal_ones = pd.Series(np.ones(n_rows))
-        if equal_zeros.equals(dataset['Y']):
-            self.branches.append(Leaf(0))
-        elif equal_ones.equals(dataset['Y']):
-            self.branches.append(Leaf(1))
+        dataset = self.data
+        value, counts = np.unique(dataset['Y'].values, return_counts=True)
+        # n_rows = len(dataset.index)
+        # equal_zeros = pd.Series(np.zeros(n_rows))
+        # equal_ones = pd.Series(np.ones(n_rows))
+        if len(value)==1:   #equal_zeros.equals(dataset['Y']):
+            if value[0] == 0:
+                self.branches.append(Leaf(label=0))
+            elif value[0] == 1:     #  equal_ones.equals(dataset['Y']):
+                self.branches.append(Leaf(label=1))
+        # elif len(value) ==2:
+        #     if counts
         else:
             # n_multiway = 0
             # branched_data = []
-            attr = best_attribute(dataset)  # if attr is boolean return attribute label and [0,1],
-            # else label as well as category list ['a', 'b'] the attributes
-            self.feature = attr.name  # storing the best attribute found for this node
-            for attr_val in attr[:]:
-                split_row_indices = (dataset[attr.name] == attr_val)
-                temp_branched_data = dataset.loc[split_row_indices, :]
-                branched_data = temp_branched_data.drop([attr.name],axis=1)
-                self.branches.append(Node().grow_tree(branched_data))
-                # n_multiway += 1
+            if len(list(dataset)) - 1 == 0: #there is no attribute except Y in the passed dataset
+                return 9
+            else:
+                attr = best_attribute(dataset)  # if attr is boolean return attribute label and [0,1],
+                # else label as well as category list ['a', 'b'] the attributes
+                self.feature = attr.name  # storing the best attribute found for this node
+                for attr_val in attr[:]:
+                    split_row_indices = (dataset[attr.name] == attr_val)
+                    temp_branched_data = dataset.loc[split_row_indices, :]
+                    branched_data = temp_branched_data.drop([attr.name],axis=1)
+                    self.branches.append(Node(data = branched_data).grow_tree())
+                    # n_multiway += 1
 
 def entropy_Hy(data = pd.Series()):
     size = data.size
@@ -85,6 +94,8 @@ def best_attribute(dataset= pd.DataFrame()):
         """
         list_attr = list(dataset)
         n_features = len(list_attr)-1 # removing column for 'Y'
+        # if n_features == 0:
+        #     return -1 # leaf node is reached.
         # entropy_vs_attr= []
         entropy_on_y = entropy_Hy(dataset['Y'])
         entropy_pxi_Hyx =  np.array([])
