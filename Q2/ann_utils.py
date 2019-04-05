@@ -297,10 +297,10 @@ def update_parameters(parameters, grads, learning_rate):
 
 def predict(X, y, parameters):
     """
-    This function is used to predict the results of a  L-layer neural network.
+    predict class for a test data by using the learned model
 
     Arguments:
-    X -- data set of examples you would like to label
+    X -- data set to be predicted.
     parameters -- parameters of the trained model
 
     Returns:
@@ -309,21 +309,21 @@ def predict(X, y, parameters):
 
     m = X.shape[1]
     n = len(parameters) // 2  # number of layers in the neural network
-    p = np.zeros((1, m))
+    class_label = y.shape[0]
+    p = np.zeros((class_label, m))
 
     # Forward propagation
-    probas, caches = L_model_forward(X, parameters)
+    probability, caches = dnn_model_forward(X, parameters)
 
     # convert probas to 0/1 predictions
-    for i in range(0, probas.shape[1]):
-        if probas[0, i] > 0.5:
-            p[0, i] = 1
-        else:
-            p[0, i] = 0
+    for i in range(0, probability.shape[1]):
+        temp_class = np.argmax(probability[:, i])
+        # probability[temp_class,i] = 1
+        p[temp_class, i] = 1
 
-    # print results
-    # print ("predictions: " + str(p))
-    # print ("true labels: " + str(y))
-    print("Accuracy: " + str(np.sum((p == y) / m)))
+    acc = 0
+    for i in range(m):
+        acc += np.array_equal(p[:,i], y[:,i])*1
+    # print("Accuracy: " + str(np.sum((p == y) / m)))
 
-    return p
+    return acc/m, p
