@@ -14,8 +14,14 @@ path_test_hot= "../../../ass3_data/poker-hand-testing-onehot.data"
 
 train_XY = pd.read_csv(path_train_hot)
 train_XY= train_XY.loc[:,:]
-train_X = train_XY.loc[:,:'C5_13'].to_numpy(copy=True)
-train_Y = train_XY.loc[:,'Hand_0':'Hand_9'].to_numpy(copy=True)
+# train_X = train_XY.loc[0,:'C5_13'].to_numpy(copy=True).reshape(1,-1)
+# train_Y = train_XY.loc[0,'Hand_0':'Hand_9'].to_numpy(copy=True).reshape(1,-1)
+
+### gradient descent ##
+train_X = train_XY.loc[:,:'C5_13'].to_numpy(copy=True).reshape(1,-1)
+train_Y = train_XY.loc[:,'Hand_0':'Hand_9'].to_numpy(copy=True).reshape(1,-1)
+
+### batch gradient descent ##
 
 # test_XY = pd.read_csv(path_test_hot)
 # test_XY= train_XY.loc[0:100,:]
@@ -29,5 +35,5 @@ config ={'neu_input_layer': 1, 'neu_output_layer': 1, 'batch_size': 10, 'n_hidde
 
 
 
-parameters = L_layer_model(train_X.T, train_Y.T, config['neu_in_layers'], learning_rate = config['learning_rate'], num_iterations = 5000, print_cost = True)
+parameters = L_layer_model(train_X.T, train_Y.T, config['neu_in_layers'], learning_rate = config['learning_rate'], num_iterations = 1000, print_cost = True)
 
