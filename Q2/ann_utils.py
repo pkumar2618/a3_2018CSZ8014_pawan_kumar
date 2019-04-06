@@ -80,7 +80,7 @@ def init_params_dnn(layer_dims):
     L = len(layer_dims)  # number of layers in the network
 
     for l in range(1, L):
-        parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l - 1])*0.01
+        parameters['W' + str(l)] = np.random.rand(layer_dims[l], layer_dims[l - 1])*0.1
         parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
 
         assert (parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l - 1]))
@@ -198,6 +198,9 @@ def linear_backward(dZ, cache):
     db = 1. / m * np.sum(dZ, axis=1, keepdims=True)
     dA_prev = np.dot(W.T, dZ)
 
+    #dW = np.dot(dZ, A_prev.T)
+    #db = np.sum(dZ, axis=1, keepdims=True)
+    #dA_prev = np.dot(W.T, dZ)
     assert (dA_prev.shape == A_prev.shape)
     assert (dW.shape == W.shape)
     assert (db.shape == b.shape)
