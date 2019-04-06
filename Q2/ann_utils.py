@@ -133,6 +133,32 @@ def linear_activation_forward(A_prev, W, b, activation):
 def dnn_model_forward(X, parameters):
     """
     forward propagation for a L layer network.
+    Arguments:
+    X -- data, numpy array of shape (input size, number of examples)
+    parameters -- output of init_params_dnn()
+    Returns:
+    AL -- last post-activation value
+    caches -- list of caches containing obtained form previous layers L-1 layers
+    """
+
+    caches = []
+    A = X
+    L = len(parameters) // 2  # number of layers in the neural network
+
+    # [linear-> sigmoid]*(L-1). append "cache" to the "caches" list.
+    for l in range(1, L):
+        A_prev = A
+        A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation="sigmoid")
+        caches.append(cache)
+
+    # output layer
+    AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation="sigmoid")
+    caches.append(cache)
+    return AL, caches
+
+def dnn_model_forward_with_relu(X, parameters):
+    """
+    forward propagation for a L layer network.
 
     Arguments:
     X -- data, numpy array of shape (input size, number of examples)
@@ -150,7 +176,7 @@ def dnn_model_forward(X, parameters):
     # [linear-> sigmoid]*(L-1). append "cache" to the "caches" list.
     for l in range(1, L):
         A_prev = A
-        A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation="sigmoid")
+        A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation="relu")
         caches.append(cache)
 
     # output layer
@@ -194,13 +220,14 @@ def linear_backward(dZ, cache):
     A_prev, W, b = cache
     m = A_prev.shape[1]
 
-    dW = 1. / m * np.dot(dZ, A_prev.T)
-    db = 1. / m * np.sum(dZ, axis=1, keepdims=True)
+    # dW = 1. / m * np.dot(dZ, A_prev.T)
+    # db = 1. / m * np.sum(dZ, axis=1, keepdims=True)
+    # dA_prev = np.dot(W.T, dZ)
+
+    dW = np.dot(dZ, A_prev.T)
+    db = np.sum(dZ, axis=1, keepdims=True)
     dA_prev = np.dot(W.T, dZ)
 
-    #dW = np.dot(dZ, A_prev.T)
-    #db = np.sum(dZ, axis=1, keepdims=True)
-    #dA_prev = np.dot(W.T, dZ)
     assert (dA_prev.shape == A_prev.shape)
     assert (dW.shape == W.shape)
     assert (db.shape == b.shape)
@@ -257,7 +284,7 @@ def dnn_model_backward(AL, Y, caches):
     Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
 
     # Initializing the backpropagation
-    dAL = -(Y - AL)/m
+    dAL = -(Y - AL)
 
     # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "AL, Y, caches". Outputs: "grads["dAL"], grads["dWL"], grads["dbL"]
     current_cache = caches[L - 1]
@@ -267,6 +294,44 @@ def dnn_model_backward(AL, Y, caches):
         # lth layer: (sigmoid-> LINEAR) gradients.
         current_cache = caches[l]
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l + 1)], current_cache, activation="sigmoid")
+        grads["dA" + str(l)] = dA_prev_temp
+        grads["dW" + str(l + 1)] = dW_temp
+        grads["db" + str(l + 1)] = db_temp
+
+    return grads
+
+def dnn_model_backward_with_relu(AL, Y, caches):
+    """
+    Implement the backward propagation for the [LINEAR->Relu] * (L-1) -> LINEAR -> SIGMOID group
+
+    Arguments:
+    AL --  output of the forward propagation (L_model_forward())
+    Y -- true "label" vector (class, number of examples)
+    caches -- list of caches containing:
+                the cache of linear_activation_forward() with "sigmoid" (there are total L)
+
+    Returns:
+    grads -- A dictionary with the gradients
+             grads["dA" + str(l)] = ...
+             grads["dW" + str(l)] = ...
+             grads["db" + str(l)] = ...
+    """
+    grads = {}
+    L = len(caches)  # the number of layers
+    m = AL.shape[1]
+    Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
+
+    # Initializing the backpropagation
+    dAL = -(Y - AL)/m
+
+    # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "AL, Y, caches". Outputs: "grads["dAL"], grads["dWL"], grads["dbL"]
+    current_cache = caches[L - 1]
+    grads["dA" + str(L - 1)], grads["dW" + str(L)], grads["db" + str(L)] = linear_activation_backward(dAL, current_cache, activation="sigmoid")
+
+    for l in reversed(range(L - 1)):
+        # lth layer: (sigmoid-> LINEAR) gradients.
+        current_cache = caches[l]
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l + 1)], current_cache, activation="relu")
         grads["dA" + str(l)] = dA_prev_temp
         grads["dW" + str(l + 1)] = dW_temp
         grads["db" + str(l + 1)] = db_temp
@@ -317,6 +382,39 @@ def predict(X, y, parameters):
 
     # Forward propagation
     probability, caches = dnn_model_forward(X, parameters)
+
+    # convert probas to 0/1 predictions
+    for i in range(0, probability.shape[1]):
+        temp_class = np.argmax(probability[:, i])
+        # probability[temp_class,i] = 1
+        p[temp_class, i] = 1
+
+    acc = 0
+    for i in range(m):
+        acc += np.array_equal(p[:,i], y[:,i])*1
+    # print("Accuracy: " + str(np.sum((p == y) / m)))
+
+    return acc/m, p
+
+def predict_with_relu(X, y, parameters):
+    """
+    predict class for a test data by using the learned model
+
+    Arguments:
+    X -- data set to be predicted.
+    parameters -- parameters of the trained model
+
+    Returns:
+    p -- predictions for the given dataset X
+    """
+
+    m = X.shape[1]
+    n = len(parameters) // 2  # number of layers in the neural network
+    class_label = y.shape[0]
+    p = np.zeros((class_label, m))
+
+    # Forward propagation
+    probability, caches = dnn_model_forward_with_relu(X, parameters)
 
     # convert probas to 0/1 predictions
     for i in range(0, probability.shape[1]):
