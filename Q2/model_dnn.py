@@ -155,19 +155,19 @@ def adaptive_learning_dnn_model_with_relu(X, Y, layers_dims, batch = 100, learni
             # Update parameters.
             parameters = update_parameters(parameters, grads, learning_rate)
 
-        # Print the cost every 100 training example
-        if print_cost and i % 100 == 0:
-            print("Cost after iteration %i: %f" % (i, cost))
-            costs.append(cost)
+        # # Print the cost every 100 training example
+        # if print_cost and i % 100 == 0:
+        #     print("Cost after iteration %i: %f" % (i, cost))
+        #     costs.append(cost)
 
         if (cost_current - cost_prev) < tol:
             learning_rate = learning_rate/5
 
-    # plot the cost
-    plt.plot(np.squeeze(costs))
-    plt.ylabel('cost')
-    plt.xlabel('iterations (per tens)')
-    plt.title("Learning rate =" + str(learning_rate))
-    plt.show()
+    # # plot the cost
+    # plt.plot(np.squeeze(costs))
+    # plt.ylabel('cost')
+    # plt.xlabel('iterations (per tens)')
+    # plt.title("Learning rate =" + str(learning_rate))
+    # plt.show()
 
     return parameters

@@ -173,7 +173,7 @@ def dnn_model_forward_with_relu(X, parameters):
     A = X
     L = len(parameters) // 2  # number of layers in the neural network
 
-    # [linear-> sigmoid]*(L-1). append "cache" to the "caches" list.
+    # [linear-> relu]*(L-1). append "cache" to the "caches" list.
     for l in range(1, L):
         A_prev = A
         A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation="relu")
@@ -220,13 +220,13 @@ def linear_backward(dZ, cache):
     A_prev, W, b = cache
     m = A_prev.shape[1]
 
-    # dW = 1. / m * np.dot(dZ, A_prev.T)
-    # db = 1. / m * np.sum(dZ, axis=1, keepdims=True)
-    # dA_prev = np.dot(W.T, dZ)
-
-    dW = np.dot(dZ, A_prev.T)
-    db = np.sum(dZ, axis=1, keepdims=True)
+    dW = 1. / m * np.dot(dZ, A_prev.T)
+    db = 1. / m * np.sum(dZ, axis=1, keepdims=True)
     dA_prev = np.dot(W.T, dZ)
+
+    # dW = np.dot(dZ, A_prev.T)
+    # db = np.sum(dZ, axis=1, keepdims=True)
+    # dA_prev = np.dot(W.T, dZ)
 
     assert (dA_prev.shape == A_prev.shape)
     assert (dW.shape == W.shape)
@@ -322,7 +322,7 @@ def dnn_model_backward_with_relu(AL, Y, caches):
     Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
 
     # Initializing the backpropagation
-    dAL = -(Y - AL)/m
+    dAL = -(Y - AL)
 
     # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "AL, Y, caches". Outputs: "grads["dAL"], grads["dWL"], grads["dbL"]
     current_cache = caches[L - 1]
