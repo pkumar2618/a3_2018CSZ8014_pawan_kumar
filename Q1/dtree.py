@@ -19,9 +19,9 @@ from node import Node
 # path_test = sys.argv[2] # prints var2
 # path_val = sys.argv[3] # prints var2
 # question_part = sys.argv[4] # prints
-path_train = "../../../ass3_data/credit-cards.train.csv"
-path_test = "../../../ass3_data/credit-cards.test.csv"
-path_val = "../../../ass3_data/credit-cards.val.csv"
+path_train = "../../ass3_data/credit-cards.train.csv"
+path_test = "../../ass3_data/credit-cards.test.csv"
+path_val = "../../ass3_data/credit-cards.val.csv"
 question_part = 'a' # prints
 
 
@@ -39,15 +39,15 @@ for label in list(train_XY):
 
 train_XY = train_XY.drop([0], axis =0)
 train_XY = train_XY.drop('X0', axis =1)
-train_XY =train_XY.iloc[0:100,:]
+# train_XY =train_XY.iloc[0:1000,:]
 
 test_XY = test_XY.drop([0], axis =0)
 test_XY = test_XY.drop('X0', axis =1)
-test_XY = test_XY.iloc[0:10,:]
+# test_XY = test_XY.iloc[0:500,:]
 
 val_XY = val_XY.drop([0], axis =0)
 val_XY = val_XY.drop('X0', axis =1)
-val_XY = val_XY.iloc[0:5,:]
+# val_XY = val_XY.iloc[0:500,:]
 
 
 # preprocessing the data based on their labels
@@ -91,15 +91,28 @@ if question_part == 'a':
     #
     # node_id_leaf_val = np.unique(node_id_leaf_val, return_counts=False)
     # val_accu = np.unique(val_accu, return_counts=False).reshape((len(node_id_leaf_val), -1))
-    #
-    # plt.plot(node_id_leaf_test,test_accu, label="test set accuracy")
-    # plt.plot(node_id_leaf_val, val_accu, label="val set accuracy")
 
-    test_node_acc = np.unique(np.vstack((node_id_leaf_test, test_accu)), axis=1, return_counts=False)
-    val_node_acc = np.unique(np.vstack((node_id_leaf_val, val_accu)), axis= 1, return_counts=False)
+    node_id_leaf_test.sort()
+    test_accu.sort()
+    node_id_leaf_val.sort()
+    val_accu.sort()
 
-    plt.plot(test_node_acc[0,:],test_node_acc[1,:])
-    plt.plot(val_node_acc[0,:],val_node_acc[1,:])
+    plt.plot(node_id_leaf_test[0:len(test_accu)], test_accu, label="test set accuracy")
+    plt.plot(node_id_leaf_val[0:len(val_accu)], val_accu, label="val set accuracy")
+
+    # test_node_acc = np.unique(np.vstack((node_id_leaf_test, test_accu)), axis=1, return_counts=False)
+    # val_node_acc = np.unique(np.vstack((node_id_leaf_val, val_accu)), axis= 1, return_counts=False)
+    # test_node_acc = np.vstack((node_id_leaf_test, test_accu))
+    # test_node_acc = test_node_acc.sort(axis =1)
+    # val_node_acc = np.vstack((node_id_leaf_val, val_accu))
+    # val_node_acc = val_node_acc.sort(axis=1)
+    # plt.plot(test_node_acc[0,:],test_node_acc[1,:], label= "test set accuracy")
+    # plt.plot(val_node_acc[0,:],val_node_acc[1,:], label="validation set accuracy")
+
+    plt.legend()
+    plt.xlabel("Node count in the tree")
+    plt.ylabel("Accuracy")
+    plt.title("Val-set and Test-set accuracy with growing d-tree.")
     plt.show()
 
     print("Tree complete")

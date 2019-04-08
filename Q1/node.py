@@ -99,7 +99,7 @@ class Node:
                     temp_test_acc = test_y_pred_label.value_counts(normalize=True, dropna=True)[True]
                     test_accu.append(temp_test_acc)
                 except:
-                    print("Index Error, Val test data don't come at this node")
+                    pass
                 try:
                     val_y_pred_label.iloc[val_pred_indices] = True
                     # node_id_leaf_val.append(self.node_id)
@@ -107,9 +107,8 @@ class Node:
                     temp_val_acc = val_y_pred_label.value_counts(normalize=True, dropna=True)[True]
                     val_accu.append(temp_val_acc)
                 except:
-                    print("Index Error, Val test data don't come at this node")
-
-                return 0
+                    pass
+                # return 0
             elif int(value[0]) == 1:  # equal_ones.equals(dataset['Y']):
                 self.feature = 'Leaf'
                 self.leaf_flag = True
@@ -123,16 +122,15 @@ class Node:
                     temp_test_acc = test_y_pred_label.value_counts(normalize=True, dropna=True)[True]
                     test_accu.append(temp_test_acc)
                 except:
-                    print("Index Error, Val test data don't come at this node")
+                    pass
                 try:
                     val_y_pred_label.iloc[val_pred_indices] = True
                     node_id_leaf_val.append(self.node_id)
                     temp_val_acc = val_y_pred_label.value_counts(normalize=True, dropna=True)[True]
                     val_accu.append(temp_val_acc)
                 except:
-                    print("Index Error, Val test data don't come at this node")
-
-                return 1
+                    pass
+                # return 1
         # elif len(value) ==2:
         #     if counts
         else:
