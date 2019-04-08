@@ -67,10 +67,11 @@ if question_part == 'a':
     root_node = Node(data=train_XY)
     # root_node.grow_tree()
 
-    # global
-    # global node_counter
-    # node_counter = 1
-    node_id_leaf_test= []
+    node_id_leaf_train = []
+    train_accu = []
+    train_y_pred_label=pd.Series(np.zeros(train_XY.shape[0]))
+
+    node_id_leaf_test=[]
     test_accu=[]
     test_y_pred_label=pd.Series(np.zeros(test_XY.shape[0]))
 
@@ -82,7 +83,7 @@ if question_part == 'a':
     val_data=val_XY
 
     # root_node.grow_tree_predict(node_counter, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val, val_accu, val_y_pred_label, test_data, val_data)
-    root_node.grow_tree_predict(node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val,
+    root_node.grow_tree_predict(node_id_leaf_train, train_accu, train_y_pred_label, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val,
                                 val_accu, val_y_pred_label, test_data, val_data)
     fig1  = plt.figure()
 
@@ -94,11 +95,16 @@ if question_part == 'a':
     # node_id_leaf_val = np.unique(node_id_leaf_val, return_counts=False)
     # val_accu = np.unique(val_accu, return_counts=False).reshape((len(node_id_leaf_val), -1))
 
+    node_id_leaf_train.sort()
+    train_accu.sort()
+
     node_id_leaf_test.sort()
     test_accu.sort()
+
     node_id_leaf_val.sort()
     val_accu.sort()
 
+    plt.plot(node_id_leaf_test[0:len(train_accu)], test_accu, label="train set accuracy")
     plt.plot(node_id_leaf_test[0:len(test_accu)], test_accu, label="test set accuracy")
     plt.plot(node_id_leaf_val[0:len(val_accu)], val_accu, label="val set accuracy")
 

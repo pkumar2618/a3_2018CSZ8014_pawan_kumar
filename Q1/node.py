@@ -69,7 +69,7 @@ class Node:
                 for i in range(len(attr)):
                     self.branches[i].grow_tree()
 
-    def grow_tree_predict(self, node_id_leaf_test=[], test_accu =[], test_y_pred_label=pd.Series(), node_id_leaf_val=[], val_accu=[],
+    def grow_tree_predict(self, node_id_leaf_train=[], train_accu =[], train_y_pred_label=pd.Series(), node_id_leaf_test=[], test_accu =[], test_y_pred_label=pd.Series(), node_id_leaf_val=[], val_accu=[],
                           val_y_pred_label=pd.Series(), test_data=pd.DataFrame(), val_data=pd.DataFrame()):
     # def grow_tree_predict(self, node_count, test_accu, test_y_pred_label,
     #                       val_accu, val_y_pred_label, test_data, val_data):
@@ -91,9 +91,20 @@ class Node:
                 self.feature = 'Leaf'
                 self.leaf_flag = True
                 self.leaf_label = 0
-                #predicting majority class
+
+                # train-set accuracy with nodes in the tree
+                train_pred_indices = dataset.loc[pd.to_numeric(dataset['Y'], downcast='signed') == 0].index.tolist()
+                try:
+                    train_y_pred_label.iloc[train_pred_indices] = True
+                    # node_id_leaf_test.append(self.node_id)
+                    node_id_leaf_train.append(node_counter)
+                    temp_train_acc = train_y_pred_label.value_counts(normalize=True, dropna=True)[True]
+                    train_accu.append(temp_train_acc)
+                except:
+                    pass
+
+                # test-set accuracy with nodes in the tree
                 test_pred_indices = test_data.loc[pd.to_numeric(test_data['Y'], downcast='signed')==0].index.tolist()
-                val_pred_indices = val_data.loc[pd.to_numeric(val_data['Y'], downcast='signed') == 0].index.tolist()
                 try:
                     test_y_pred_label.iloc[test_pred_indices] = True
                     # node_id_leaf_test.append(self.node_id)
@@ -102,6 +113,8 @@ class Node:
                     test_accu.append(temp_test_acc)
                 except:
                     pass
+                # val-set accuracy with nodes in the tree
+                val_pred_indices = val_data.loc[pd.to_numeric(val_data['Y'], downcast='signed') == 0].index.tolist()
                 try:
                     val_y_pred_label.iloc[val_pred_indices] = True
                     # node_id_leaf_val.append(self.node_id)
@@ -115,9 +128,21 @@ class Node:
                 self.feature = 'Leaf'
                 self.leaf_flag = True
                 self.leaf_label = 1
-                # predicting majority class
+
+                # train-set accuracy with nodes in the tree
+                train_pred_indices = dataset.loc[pd.to_numeric(dataset['Y'], downcast='signed') == 0].index.tolist()
+                try:
+                    train_y_pred_label.iloc[train_pred_indices] = True
+                    # node_id_leaf_test.append(self.node_id)
+                    node_id_leaf_train.append(node_counter)
+                    temp_train_acc = train_y_pred_label.value_counts(normalize=True, dropna=True)[True]
+                    train_accu.append(temp_train_acc)
+                except:
+                    pass
+
+                # test-set accuracy with nodes in the tree
                 test_pred_indices = test_data.loc[pd.to_numeric(test_data['Y'], downcast='signed') == 1].index.tolist()
-                val_pred_indices = val_data.loc[pd.to_numeric(val_data['Y'], downcast='signed') == 1].index.tolist()
+
                 try:
                     test_y_pred_label.iloc[test_pred_indices] = True
                     node_id_leaf_test.append(node_counter)
@@ -125,6 +150,9 @@ class Node:
                     test_accu.append(temp_test_acc)
                 except:
                     pass
+
+                # val-set accuracy with nodes in the tree
+                val_pred_indices = val_data.loc[pd.to_numeric(val_data['Y'], downcast='signed') == 1].index.tolist()
                 try:
                     val_y_pred_label.iloc[val_pred_indices] = True
                     node_id_leaf_val.append(node_counter)
@@ -184,7 +212,7 @@ class Node:
                     self.branches[i].node_id = node_counter
                     # self.branches[i].grow_tree_predict(node_counter, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val, val_accu,
                     #                                    val_y_pred_label, test_branched_data[i], val_branched_data[i])
-                    self.branches[i].grow_tree_predict(node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val, val_accu,
+                    self.branches[i].grow_tree_predict(node_id_leaf_train, train_accu, train_y_pred_label, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val, val_accu,
                                                        val_y_pred_label, test_branched_data[i], val_branched_data[i])
 
 def entropy_Hy(data = pd.Series()):
