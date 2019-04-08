@@ -104,7 +104,7 @@ if question_part == 'a':
     node_id_leaf_val.sort()
     val_accu.sort()
 
-    plt.plot(node_id_leaf_test[0:len(train_accu)], test_accu, label="train set accuracy")
+    plt.plot(node_id_leaf_train[0:len(train_accu)], train_accu, label="train set accuracy")
     plt.plot(node_id_leaf_test[0:len(test_accu)], test_accu, label="test set accuracy")
     plt.plot(node_id_leaf_val[0:len(val_accu)], val_accu, label="val set accuracy")
 
