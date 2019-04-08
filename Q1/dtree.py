@@ -19,9 +19,12 @@ from node import Node
 # path_test = sys.argv[2] # prints var2
 # path_val = sys.argv[3] # prints var2
 # question_part = sys.argv[4] # prints
-path_train = "../../ass3_data/credit-cards.train.csv"
-path_test = "../../ass3_data/credit-cards.test.csv"
-path_val = "../../ass3_data/credit-cards.val.csv"
+# path_train = "../../ass3_data/credit-cards.train.csv"
+# path_test = "../../ass3_data/credit-cards.test.csv"
+# path_val = "../../ass3_data/credit-cards.val.csv"
+path_train = "../../../ass3_data/credit-cards.train.csv"
+path_test = "../../../ass3_data/credit-cards.test.csv"
+path_val = "../../../ass3_data/credit-cards.val.csv"
 question_part = 'a' # prints
 
 
@@ -39,15 +42,15 @@ for label in list(train_XY):
 
 train_XY = train_XY.drop([0], axis =0)
 train_XY = train_XY.drop('X0', axis =1)
-# train_XY =train_XY.iloc[0:1000,:]
+# train_XY =train_XY.iloc[0:50,:]
 
 test_XY = test_XY.drop([0], axis =0)
 test_XY = test_XY.drop('X0', axis =1)
-# test_XY = test_XY.iloc[0:500,:]
+# test_XY = test_XY.iloc[0:10,:]
 
 val_XY = val_XY.drop([0], axis =0)
 val_XY = val_XY.drop('X0', axis =1)
-# val_XY = val_XY.iloc[0:500,:]
+# val_XY = val_XY.iloc[0:5,:]
 
 
 # preprocessing the data based on their labels
@@ -62,7 +65,7 @@ for label in cont_attr:
 
 if question_part == 'a':
     # dt_fit = Tree()
-    n_features = len(list(train_XY))-1 # and Y removed.
+    # n_features = len(list(train_XY))-1 # and Y removed.
     # feature = best_attribute(dataset= pd.DataFrame(), max_features = n_features)
     root_node = Node(data=train_XY)
     # root_node.grow_tree()
@@ -81,6 +84,7 @@ if question_part == 'a':
 
     test_data=test_XY
     val_data=val_XY
+
 
     # root_node.grow_tree_predict(node_counter, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val, val_accu, val_y_pred_label, test_data, val_data)
     root_node.grow_tree_predict(node_id_leaf_train, train_accu, train_y_pred_label, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val,
@@ -124,8 +128,109 @@ if question_part == 'a':
     plt.show()
 
     print("Tree complete")
-# if question_part == 'b':
-#
+if question_part == 'b':
+    #Grow the tree first
+    root_node = Node(data=train_XY)
+    # root_node.grow_tree()
+
+    # build the decision tree for the first time
+    root_node.grow_tree()
+
+    # Counting the nodes
+    # nodes_in_tree = root_node.node_count()
+    # print("node in tree", nodes_in_tree)
+    train_data = train_XY.copy(deep=True)
+    train_nodes = []
+    train_accu = []
+    train_y_pred_label = pd.Series(np.zeros(train_XY.shape[0]))
+
+    test_data = test_XY.copy(deep=True)
+    test_nodes = []
+    test_accu = []
+    test_y_pred_label = pd.Series(np.zeros(test_XY.shape[0]))
+
+    val_data = val_XY.copy(deep=True)
+    val_nodes = []
+    val_accu = []
+    val_y_pred_label = pd.Series(np.zeros(val_XY.shape[0]))
+
+    post_prunning_accu(val_data, val_accu, val_nodes,
+                       test_data, test_accu, test_nodes,
+                       train_data, train_accu, train_nodes)
+
+    old_val_acc = val_accu.sort(reverse=True)[0]
+    # getting accuracy and pruning
+    # pruning of validation set
+
+    while(root_node.leaf_flag == False):
+        root_node.prune()
+        train_data = train_XY.copy(deep=True)
+        train_nodes = []
+        train_accu = []
+        train_y_pred_label = pd.Series(np.zeros(train_XY.shape[0]))
+
+        test_data = test_XY.copy(deep=True)
+        test_nodes = []
+        test_accu = []
+        test_y_pred_label = pd.Series(np.zeros(test_XY.shape[0]))
+
+        val_data = val_XY.copy(deep=True)
+        val_nodes = []
+        val_accu = []
+        val_y_pred_label = pd.Series(np.zeros(val_XY.shape[0]))
+
+        root_node.post_prunning_accu(val_data, val_accu, val_nodes,
+                           test_data, test_accu, test_nodes,
+                           train_data, train_accu, train_nodes)
+        new_val_acc = val_accu.sort(reverse=True)
+        if (new_val_acc < old_val_acc):
+            break
+        else:
+            root_node.prune()
+
+
+    # root_node.grow_tree_predict(node_id_leaf_train, train_accu, train_y_pred_label, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val,
+    #                             val_accu, val_y_pred_label, test_data, val_data)
+    # fig1  = plt.figure()
+    #
+    # # node
+    #
+    # # node_id_leaf_test = np.unique(node_id_leaf_test, return_counts=False)
+    # # test_accu = np.unique(test_accu, return_counts=False).reshape((len(node_id_leaf_test), -1))
+    # #
+    # # node_id_leaf_val = np.unique(node_id_leaf_val, return_counts=False)
+    # # val_accu = np.unique(val_accu, return_counts=False).reshape((len(node_id_leaf_val), -1))
+    #
+    # node_id_leaf_train.sort()
+    # train_accu.sort()
+    #
+    # node_id_leaf_test.sort()
+    # test_accu.sort()
+    #
+    # node_id_leaf_val.sort()
+    # val_accu.sort()
+    #
+    # plt.plot(node_id_leaf_train[0:len(train_accu)], train_accu, label="train set accuracy")
+    # plt.plot(node_id_leaf_test[0:len(test_accu)], test_accu, label="test set accuracy")
+    # plt.plot(node_id_leaf_val[0:len(val_accu)], val_accu, label="val set accuracy")
+    #
+    # # test_node_acc = np.unique(np.vstack((node_id_leaf_test, test_accu)), axis=1, return_counts=False)
+    # # val_node_acc = np.unique(np.vstack((node_id_leaf_val, val_accu)), axis= 1, return_counts=False)
+    # # test_node_acc = np.vstack((node_id_leaf_test, test_accu))
+    # # test_node_acc = test_node_acc.sort(axis =1)
+    # # val_node_acc = np.vstack((node_id_leaf_val, val_accu))
+    # # val_node_acc = val_node_acc.sort(axis=1)
+    # # plt.plot(test_node_acc[0,:],test_node_acc[1,:], label= "test set accuracy")
+    # # plt.plot(val_node_acc[0,:],val_node_acc[1,:], label="validation set accuracy")
+    #
+    # plt.legend()
+    # plt.xlabel("Node count in the tree")
+    # plt.ylabel("Accuracy")
+    # plt.title("Val-set and Test-set accuracy with growing d-tree.")
+    # plt.show()
+    #
+    print("Tree complete")
+
 # if question_part == 'c':
 
 if question_part == 'd':
