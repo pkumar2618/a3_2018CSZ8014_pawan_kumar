@@ -6,8 +6,8 @@ from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
 
 from node import Node
-from node import best_attribute
-from tree import Tree
+# from node import best_attribute
+# from tree import Tree
 # from tree import grow_tree
 
 
@@ -39,14 +39,15 @@ for label in list(train_XY):
 
 train_XY = train_XY.drop([0], axis =0)
 train_XY = train_XY.drop('X0', axis =1)
-# train_XY =train_XY.iloc[0:100,:]
+train_XY =train_XY.iloc[0:100,:]
 
 test_XY = test_XY.drop([0], axis =0)
 test_XY = test_XY.drop('X0', axis =1)
+test_XY = test_XY.iloc[0:10,:]
 
 val_XY = val_XY.drop([0], axis =0)
 val_XY = val_XY.drop('X0', axis =1)
-
+val_XY = val_XY.iloc[0:5,:]
 
 
 # preprocessing the data based on their labels
@@ -64,7 +65,43 @@ if question_part == 'a':
     n_features = len(list(train_XY))-1 # and Y removed.
     # feature = best_attribute(dataset= pd.DataFrame(), max_features = n_features)
     root_node = Node(data=train_XY)
-    root_node.grow_tree()
+    # root_node.grow_tree()
+
+    # global node_counter
+    node_counter = 1
+
+    node_id_leaf_test= []
+    test_accu=[]
+    test_y_pred_label=pd.Series(np.zeros(test_XY.shape[0]))
+
+    node_id_leaf_val = []
+    val_accu=[]
+    val_y_pred_label=pd.Series(np.zeros(val_XY.shape[0]))
+
+    test_data=test_XY
+    val_data=val_XY
+
+    root_node.grow_tree_predict(node_counter, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val, val_accu, val_y_pred_label, test_data, val_data)
+    fig1  = plt.figure()
+
+    # node
+
+    # node_id_leaf_test = np.unique(node_id_leaf_test, return_counts=False)
+    # test_accu = np.unique(test_accu, return_counts=False).reshape((len(node_id_leaf_test), -1))
+    #
+    # node_id_leaf_val = np.unique(node_id_leaf_val, return_counts=False)
+    # val_accu = np.unique(val_accu, return_counts=False).reshape((len(node_id_leaf_val), -1))
+    #
+    # plt.plot(node_id_leaf_test,test_accu, label="test set accuracy")
+    # plt.plot(node_id_leaf_val, val_accu, label="val set accuracy")
+
+    test_node_acc = np.unique(np.vstack((node_id_leaf_test, test_accu)), axis=1, return_counts=False)
+    val_node_acc = np.unique(np.vstack((node_id_leaf_val, val_accu)), axis= 1, return_counts=False)
+
+    plt.plot(test_node_acc[0,:],test_node_acc[1,:])
+    plt.plot(val_node_acc[0,:],val_node_acc[1,:])
+    plt.show()
+
     print("Tree complete")
 # if question_part == 'b':
 #
