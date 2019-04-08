@@ -10,7 +10,7 @@ from node import Node
 # from tree import Tree
 # from tree import grow_tree
 
-
+# node_counter = 1
 
 
 # print sys.argv[0] # prints python_script.py
@@ -67,9 +67,9 @@ if question_part == 'a':
     root_node = Node(data=train_XY)
     # root_node.grow_tree()
 
+    # global
     # global node_counter
-    node_counter = 1
-
+    # node_counter = 1
     node_id_leaf_test= []
     test_accu=[]
     test_y_pred_label=pd.Series(np.zeros(test_XY.shape[0]))
@@ -81,7 +81,9 @@ if question_part == 'a':
     test_data=test_XY
     val_data=val_XY
 
-    root_node.grow_tree_predict(node_counter, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val, val_accu, val_y_pred_label, test_data, val_data)
+    # root_node.grow_tree_predict(node_counter, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val, val_accu, val_y_pred_label, test_data, val_data)
+    root_node.grow_tree_predict(node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val,
+                                val_accu, val_y_pred_label, test_data, val_data)
     fig1  = plt.figure()
 
     # node

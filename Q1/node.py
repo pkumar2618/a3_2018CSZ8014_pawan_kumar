@@ -1,13 +1,14 @@
 import numpy as np
 import pandas as pd
 # import sys
-
+node_counter = 1
 # print sys.argv[0] # prints python_script.py
 # path_train = sys.argv[1] # prints var1
 # path_test = sys.argv[2] # prints var2
 # question_part = sys.argv[3] # prints
 
 class Node:
+
     """
     node to contain attribute on which it splits the data
     """
@@ -68,7 +69,7 @@ class Node:
                 for i in range(len(attr)):
                     self.branches[i].grow_tree()
 
-    def grow_tree_predict(self, node_counter =1, node_id_leaf_test=[], test_accu =[], test_y_pred_label=pd.Series(), node_id_leaf_val=[], val_accu=[],
+    def grow_tree_predict(self, node_id_leaf_test=[], test_accu =[], test_y_pred_label=pd.Series(), node_id_leaf_val=[], val_accu=[],
                           val_y_pred_label=pd.Series(), test_data=pd.DataFrame(), val_data=pd.DataFrame()):
     # def grow_tree_predict(self, node_count, test_accu, test_y_pred_label,
     #                       val_accu, val_y_pred_label, test_data, val_data):
@@ -76,6 +77,7 @@ class Node:
         #  and the split based on the feature value of test_data
         # and val_data, as it encounters a leaf_node the node_count will be updated,
         # and accuracies will be updates as well
+        global node_counter
         dataset = self.data
         test_data = test_data
         val_data = val_data
@@ -118,14 +120,14 @@ class Node:
                 val_pred_indices = val_data.loc[pd.to_numeric(val_data['Y'], downcast='signed') == 1].index.tolist()
                 try:
                     test_y_pred_label.iloc[test_pred_indices] = True
-                    node_id_leaf_test.append(self.node_id)
+                    node_id_leaf_test.append(node_counter)
                     temp_test_acc = test_y_pred_label.value_counts(normalize=True, dropna=True)[True]
                     test_accu.append(temp_test_acc)
                 except:
                     pass
                 try:
                     val_y_pred_label.iloc[val_pred_indices] = True
-                    node_id_leaf_val.append(self.node_id)
+                    node_id_leaf_val.append(node_counter)
                     temp_val_acc = val_y_pred_label.value_counts(normalize=True, dropna=True)[True]
                     val_accu.append(temp_val_acc)
                 except:
@@ -177,11 +179,13 @@ class Node:
 
                 # bfs like growth
                 for i in range(len(attr)):
+                    # global node_counter
                     node_counter += 1
                     self.branches[i].node_id = node_counter
-                    self.branches[i].grow_tree_predict(node_counter, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val, val_accu,
+                    # self.branches[i].grow_tree_predict(node_counter, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val, val_accu,
+                    #                                    val_y_pred_label, test_branched_data[i], val_branched_data[i])
+                    self.branches[i].grow_tree_predict(node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val, val_accu,
                                                        val_y_pred_label, test_branched_data[i], val_branched_data[i])
-
 
 def entropy_Hy(data = pd.Series()):
     size = data.size
