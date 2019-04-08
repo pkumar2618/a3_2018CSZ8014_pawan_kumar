@@ -4,8 +4,8 @@ from sklearn.metrics import accuracy_score
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
-
 from node import Node
+import sys
 # from node import best_attribute
 # from tree import Tree
 # from tree import grow_tree
@@ -15,17 +15,18 @@ from node import Node
 
 # print sys.argv[0] # prints python_script.py
 
-# path_train = sys.argv[1] # prints var1
-# path_test = sys.argv[2] # prints var2
-# path_val = sys.argv[3] # prints var2
-# question_part = sys.argv[4] # prints
+question_part = sys.argv[1] # prints
+path_train = sys.argv[2] # prints var1
+path_test = sys.argv[3]# prints var2
+path_val = sys.argv[4] # prints var2
+
 # path_train = "../../ass3_data/credit-cards.train.csv"
 # path_test = "../../ass3_data/credit-cards.test.csv"
 # path_val = "../../ass3_data/credit-cards.val.csv"
-path_train = "../../../ass3_data/credit-cards.train.csv"
-path_test = "../../../ass3_data/credit-cards.test.csv"
-path_val = "../../../ass3_data/credit-cards.val.csv"
-question_part = 'a' # prints
+# path_train = "../../../ass3_data/credit-cards.train.csv"
+# path_test = "../../../ass3_data/credit-cards.test.csv"
+# path_val = "../../../ass3_data/credit-cards.val.csv"
+# question_part = 'a' # prints
 
 
 # mat_labels_features = np.zeros((10,4))
@@ -63,7 +64,7 @@ for label in cont_attr:
 
 
 
-if question_part == 'a':
+if question_part == '1':
     # dt_fit = Tree()
     # n_features = len(list(train_XY))-1 # and Y removed.
     # feature = best_attribute(dataset= pd.DataFrame(), max_features = n_features)
@@ -127,8 +128,9 @@ if question_part == 'a':
     plt.title("Val-set and Test-set accuracy with growing d-tree.")
     plt.show()
 
-    print("Tree complete")
-if question_part == 'b':
+    # print("Tree complete")
+
+if question_part == '2':
     #Grow the tree first
     root_node = Node(data=train_XY)
     # root_node.grow_tree()
@@ -154,16 +156,17 @@ if question_part == 'b':
     val_accu = []
     val_y_pred_label = pd.Series(np.zeros(val_XY.shape[0]))
 
-    post_prunning_accu(val_data, val_accu, val_nodes,
+    root_node.post_prunning_accu(val_data, val_accu, val_nodes,
                        test_data, test_accu, test_nodes,
                        train_data, train_accu, train_nodes)
 
-    old_val_acc = val_accu.sort(reverse=True)[0]
-    # getting accuracy and pruning
+    val_accu.sort(reverse=True)
+    old_val_acc = 0
+        # getting accuracy and pruning
     # pruning of validation set
 
     while(root_node.leaf_flag == False):
-        root_node.prune()
+        root_node.prune_tree()
         train_data = train_XY.copy(deep=True)
         train_nodes = []
         train_accu = []
@@ -189,51 +192,10 @@ if question_part == 'b':
             root_node.prune()
 
 
-    # root_node.grow_tree_predict(node_id_leaf_train, train_accu, train_y_pred_label, node_id_leaf_test, test_accu, test_y_pred_label, node_id_leaf_val,
-    #                             val_accu, val_y_pred_label, test_data, val_data)
-    # fig1  = plt.figure()
-    #
-    # # node
-    #
-    # # node_id_leaf_test = np.unique(node_id_leaf_test, return_counts=False)
-    # # test_accu = np.unique(test_accu, return_counts=False).reshape((len(node_id_leaf_test), -1))
-    # #
-    # # node_id_leaf_val = np.unique(node_id_leaf_val, return_counts=False)
-    # # val_accu = np.unique(val_accu, return_counts=False).reshape((len(node_id_leaf_val), -1))
-    #
-    # node_id_leaf_train.sort()
-    # train_accu.sort()
-    #
-    # node_id_leaf_test.sort()
-    # test_accu.sort()
-    #
-    # node_id_leaf_val.sort()
-    # val_accu.sort()
-    #
-    # plt.plot(node_id_leaf_train[0:len(train_accu)], train_accu, label="train set accuracy")
-    # plt.plot(node_id_leaf_test[0:len(test_accu)], test_accu, label="test set accuracy")
-    # plt.plot(node_id_leaf_val[0:len(val_accu)], val_accu, label="val set accuracy")
-    #
-    # # test_node_acc = np.unique(np.vstack((node_id_leaf_test, test_accu)), axis=1, return_counts=False)
-    # # val_node_acc = np.unique(np.vstack((node_id_leaf_val, val_accu)), axis= 1, return_counts=False)
-    # # test_node_acc = np.vstack((node_id_leaf_test, test_accu))
-    # # test_node_acc = test_node_acc.sort(axis =1)
-    # # val_node_acc = np.vstack((node_id_leaf_val, val_accu))
-    # # val_node_acc = val_node_acc.sort(axis=1)
-    # # plt.plot(test_node_acc[0,:],test_node_acc[1,:], label= "test set accuracy")
-    # # plt.plot(val_node_acc[0,:],val_node_acc[1,:], label="validation set accuracy")
-    #
-    # plt.legend()
-    # plt.xlabel("Node count in the tree")
-    # plt.ylabel("Accuracy")
-    # plt.title("Val-set and Test-set accuracy with growing d-tree.")
-    # plt.show()
-    #
-    print("Tree complete")
 
-# if question_part == 'c':
+if question_part == '3':
 
-if question_part == 'd':
+if question_part == '4':
     """
     using sciki - learn library to grow a decision tree
     """
@@ -300,8 +262,22 @@ if question_part == 'd':
     # plt.legend((line1, line2, line3), ('min_sample_leaf', 'min_sample_split', 'max_depth'))
     plt.show()
 
+    clf_config = tree.DecisionTreeClassifier(criterion='entropy', min_samples_leaf=22, min_samples_split=70,
+                                             max_depth=7)
+    decision_tree = clf_config.fit(train_X, train_Y)
+    val_Y_pred = decision_tree.predict(val_X)
+    val_accu = accuracy_score(val_Y, val_Y_pred) * 100
 
-if question_part == 'e':
+    train_Y_pred = decision_tree.predict(train_X)
+    train_accu = accuracy_score(train_Y, train_Y_pred) * 100
+
+    test_Y_pred = decision_tree.predict(test_X)
+    test_accu = accuracy_score(test_Y, test_Y_pred) * 100
+    print("Trains set Accuracy:", train_accu)
+    print("Validation set Accuracy:", val_accu)
+    print("Test set Accuracy:", test_accu)
+
+if question_part == '5':
     """
     using one-hot encoding for catagorical data and sciki - learn tree
     """
@@ -331,7 +307,7 @@ if question_part == 'e':
     acc_test = accuracy_score(test_Y, test_Y_pred) * 100
     print("accuracy on train_set, validation_set and test_set are %f, %f, %f  respectively " % (acc_test, acc_val, acc_test) )
 
-if question_part == 'f':
+if question_part == '6':
     """
     prediction using Random Forest
     """
@@ -400,10 +376,19 @@ if question_part == 'f':
 
     # plt.legend((line1, line2, line3), ('min_sample_leaf', 'min_sample_split', 'max_depth'))
     plt.show()
-#
-# # root_node = Node(mat_labels_features)
-# # root = Tree(root_node)
-#
-# # print(root_node.entropy())
 
 
+    clf_config = RandomForestClassifier(n_estimators=90, max_features=33, bootstrap=True)
+    r_forest = clf_config.fit(train_X, train_Y)
+
+    val_Y_pred = r_forest.predict(val_X)
+    val_accu = accuracy_score(val_Y, val_Y_pred) * 100
+
+    train_Y_pred = r_forest.predict(train_X)
+    train_accu = accuracy_score(train_Y, train_Y_pred) * 100
+
+    test_Y_pred = r_forest.predict(test_X)
+    test_accu = accuracy_score(test_Y, test_Y_pred) * 100
+    print("Trains set Accuracy:", train_accu)
+    print("Validation set Accuracy:", val_accu)
+    print("Test set Accuracy:", test_accu)

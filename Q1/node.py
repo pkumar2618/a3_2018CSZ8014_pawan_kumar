@@ -143,7 +143,7 @@ class Node:
         majority_label = self.majority_class
         if (self.leaf_flag == 1):
             # train-set accuracy with nodes in the tree
-            train_pred_indices = train_data.loc[pd.to_numeric(dataset['Y'], downcast='signed') == majority_label].index.tolist()
+            train_pred_indices = train_data.loc[pd.to_numeric(train_data['Y'], downcast='signed') == majority_label].index.tolist()
             try:
                 train_y_pred_label.iloc[train_pred_indices] = True
                 train_nodes.append(node_counter)
@@ -215,7 +215,7 @@ class Node:
             for i in range(len(self.branches)):
                 # global node_counter
                 node_counter += 1
-                self.branches[i].post_prunning(val_data, val_accu, val_nodes,
+                self.branches[i].post_prunning_accu(val_data, val_accu, val_nodes,
                                                 test_data, test_accu, test_nodes,
                                                 train_data, train_accu, train_nodes)
     def prune_tree(self):
